@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a6a7dfde9026b4d870c46e63f6a5be, type: 3}
+  m_Name: Boss01Config
+  m_EditorClassIdentifier: Assembly-CSharp::AshenTrial.BossConfig
+  maxHealth: 300
+  moveSpeed: 2
+  rotationSpeed: 180
+  attackRange: 2
+  attackDamage: 25
+  attackWindup: 0.65
+  attackActiveDuration: 0.2
+  attackRecovery: 1.2
+  meleeInterval: 0.65
+  chargeTriggerRange: 8
+  chargeSpeed: 12
+  chargeDistance: 6
+  chargeWindup: 0.8
+  chargeRecovery: 1.2
+  chargeDamage: 25
+  chargeCooldown: 5
+  aoeRadius: 4
+  aoeWindup: 1
+  aoeRecovery: 1.2
+  aoeDamage: 25
+  aoeCooldown: 5
+  phaseTwoHealthRatio: 0.5
+  phaseTwoMeleeRecovery: 0.9
+  phaseTwoChargeSpeed: 15
+  phaseTwoAoERadius: 4.5
+  phaseTwoAoECooldown: 4
