@@ -54,8 +54,7 @@ namespace AshenTrial
             }
             health.Initialize(config.maxHealth);
             projectileWidth = projectilePool.ProjectileWidth;
-            foreach (Collider other in target.GetComponentsInChildren<Collider>())
-                if (other.transform != target && !other.isTrigger) Physics.IgnoreCollision(body, other);
+            BossLocomotion.IgnoreTargetChildSolidColliders(body, target);
             CancelPattern();
         }
 
@@ -140,14 +139,11 @@ namespace AshenTrial
                     break;
             }
             if (!isActiveAndEnabled || !body.enabled) return;
-            float margin = body.radius + body.skinWidth + config.boundaryMargin;
-            Vector3 destination = transform.position + movement;
-            destination.x = Mathf.Clamp(destination.x, config.arenaMin.x + margin, config.arenaMax.x - margin);
-            destination.z = Mathf.Clamp(destination.z, config.arenaMin.y + margin, config.arenaMax.y - margin);
+            Vector3 destination = BossLocomotion.ClampToArena(transform.position + movement, body,
+                config.arenaMin, config.arenaMax, config.boundaryMargin);
             Vector3 boundedMovement = destination - transform.position;
             bool reachedBoundary = (boundedMovement - movement).sqrMagnitude > 0.000001f;
-            if (body.isGrounded && verticalSpeed < 0f) verticalSpeed = -2f;
-            verticalSpeed += Physics.gravity.y * Time.deltaTime;
+            verticalSpeed = BossLocomotion.TickGravity(body, verticalSpeed, Time.deltaTime);
             Vector3 previousPosition = transform.position;
             CollisionFlags collision = body.Move(boundedMovement + Vector3.up * (verticalSpeed * Time.deltaTime));
             if (state == BossState.Dash)

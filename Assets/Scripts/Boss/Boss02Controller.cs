@@ -52,8 +52,7 @@ namespace AshenTrial
             }
             health.Initialize(config.maxHealth);
             projectileWidth = projectilePool.ProjectileWidth;
-            foreach (Collider other in target.GetComponentsInChildren<Collider>())
-                if (other.transform != target && !other.isTrigger) Physics.IgnoreCollision(body, other);
+            BossLocomotion.IgnoreTargetChildSolidColliders(body, target);
             CancelPattern();
         }
 
@@ -141,17 +140,13 @@ namespace AshenTrial
             Vector3 bounded = ClampToArena(transform.position + movement);
             movement.x = bounded.x - transform.position.x;
             movement.z = bounded.z - transform.position.z;
-            if (body.isGrounded && verticalSpeed < 0f) verticalSpeed = -2f;
-            verticalSpeed += Physics.gravity.y * Time.deltaTime;
+            verticalSpeed = BossLocomotion.TickGravity(body, verticalSpeed, Time.deltaTime);
             body.Move(movement + Vector3.up * (verticalSpeed * Time.deltaTime));
         }
 
         private Vector3 ClampToArena(Vector3 position)
         {
-            float margin = body.radius + body.skinWidth + config.boundaryMargin;
-            position.x = Mathf.Clamp(position.x, config.arenaMin.x + margin, config.arenaMax.x - margin);
-            position.z = Mathf.Clamp(position.z, config.arenaMin.y + margin, config.arenaMax.y - margin);
-            return position;
+            return BossLocomotion.ClampToArena(position, body, config.arenaMin, config.arenaMax, config.boundaryMargin);
         }
 
         private void StartReposition(Vector3 toTarget)

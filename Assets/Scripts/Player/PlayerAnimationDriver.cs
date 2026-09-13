@@ -28,11 +28,16 @@ namespace AshenTrial
         [SerializeField] private AnimationClip[] rollClips;
         [SerializeField] private AnimationClip hitClip;
         [SerializeField, Min(0f)] private float locomotionBlend = 0.06f;
+        [SerializeField, Min(0.01f)] private float rollVisualDuration = 0.4f;
+        [SerializeField, Range(0.01f, 0.99f)] private float attackImpactTime = 0.43f;
+        [SerializeField, Range(0.01f, 0.99f)] private float attackRecoveryTime = 0.6f;
         private int currentState;
         private int previousCombo;
         private bool wasDodging;
         private int rollIndex;
         private float hitUntil;
+        private float rollUntil;
+        private PlayerCombat.AttackPhase animationAttackPhase;
 
         private void Awake()
         {
@@ -56,11 +61,14 @@ namespace AshenTrial
         private void OnDisable()
         {
             if (health != null) health.DamageApplied -= OnDamageApplied;
+            rollUntil = 0f;
+            wasDodging = false;
         }
 
         private void OnDamageApplied(float damage)
         {
             if (health.IsDead || damage <= 0f) return;
+            rollUntil = 0f;
             hitUntil = Time.time + hitClip.length;
             // The reaction can be interrupted by a newly accepted action; it never locks gameplay.
             currentState = 0;
@@ -70,6 +78,7 @@ namespace AshenTrial
         {
             if (health.IsDead)
             {
+                rollUntil = 0f;
                 SetState(Death, 1f);
                 return;
             }
@@ -84,24 +93,39 @@ namespace AshenTrial
             bool newAttack = combat.ComboStep != 0 && combat.ComboStep != previousCombo;
             bool newDodge = dodge.IsDodging && !wasDodging;
             if (newAttack || newDodge) hitUntil = 0f;
+            if (newAttack) rollUntil = 0f;
             previousCombo = combat.ComboStep;
             wasDodging = dodge.IsDodging;
 
             if (newDodge)
             {
+                rollUntil = Time.time + Mathf.Max(0.01f, rollVisualDuration);
+                currentState = 0;
                 Vector3 direction = transform.InverseTransformDirection(dodge.CurrentDodgeDirection);
                 rollIndex = Mathf.Abs(direction.z) >= Mathf.Abs(direction.x)
                     ? (direction.z >= 0f ? 0 : 1) : (direction.x < 0f ? 2 : 3);
             }
             if (Time.time < hitUntil)
                 SetState(Hit, 1f);
-            else if (dodge.IsDodging)
-                SetState(Rolls[rollIndex], rollClips[rollIndex].length / dodge.DodgeDuration);
+            else if (Time.time < rollUntil)
+                SetState(Rolls[rollIndex], rollClips[rollIndex].length / Mathf.Max(0.01f, rollVisualDuration));
             else if (combat.ComboStep > 0)
             {
                 int index = combat.ComboStep - 1;
-                float duration = combat.WindupDuration + combat.ActiveDuration + combat.RecoveryDuration;
-                SetState(Attacks[index], attackClips[index].length / duration);
+                float impact = Mathf.Clamp(attackImpactTime, 0.01f, 0.98f);
+                float recovery = Mathf.Clamp(attackRecoveryTime, impact + 0.01f, 0.99f);
+                float from = combat.Phase == PlayerCombat.AttackPhase.Windup ? 0f :
+                    combat.Phase == PlayerCombat.AttackPhase.Active ? impact : recovery;
+                float to = combat.Phase == PlayerCombat.AttackPhase.Windup ? impact :
+                    combat.Phase == PlayerCombat.AttackPhase.Active ? recovery : 1f;
+                float duration = combat.Phase == PlayerCombat.AttackPhase.Windup ? combat.WindupDuration :
+                    combat.Phase == PlayerCombat.AttackPhase.Active ? combat.ActiveDuration : combat.RecoveryDuration;
+                // Match the contact pose to the gameplay phase, including FURY and hit stop.
+                if (currentState != Attacks[index] || animationAttackPhase != combat.Phase)
+                    animator.Play(Attacks[index], 0, from);
+                currentState = Attacks[index];
+                animationAttackPhase = combat.Phase;
+                animator.SetFloat(ActionSpeed, attackClips[index].length * (to - from) / Mathf.Max(0.0001f, duration));
             }
             else
                 SetState(Locomotion, 1f);

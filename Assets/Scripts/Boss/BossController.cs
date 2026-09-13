@@ -19,6 +19,7 @@ namespace AshenTrial
         [SerializeField] private Health targetHealth;
         [SerializeField] private AttackHitbox hitbox;
         [SerializeField] private BossTelegraph telegraph;
+        [SerializeField, Min(0f)] private float meleeDirectionLockLead = 0.15f;
         [SerializeField] private FightPhase fightPhase = FightPhase.One;
         [SerializeField] private BossState state;
         [SerializeField] private AttackPhase phase;
@@ -60,11 +61,7 @@ namespace AshenTrial
             fightPhase = FightPhase.One;
             // The player's forward marker has a solid collider outside its body.
             // Keep body collision, but do not let visual child colliders block approach.
-            foreach (Collider targetCollider in target.GetComponentsInChildren<Collider>())
-            {
-                if (targetCollider.transform != target && !targetCollider.isTrigger)
-                    Physics.IgnoreCollision(controller, targetCollider);
-            }
+            BossLocomotion.IgnoreTargetChildSolidColliders(controller, target);
             StopAttack();
             state = BossState.Ready;
         }
@@ -145,8 +142,7 @@ namespace AshenTrial
 
             // A lethal hit can disable this boss synchronously through GameOver.
             if (!isActiveAndEnabled || !controller.enabled) return;
-            if (controller.isGrounded && verticalSpeed < 0f) verticalSpeed = -2f;
-            verticalSpeed += Physics.gravity.y * Time.deltaTime;
+            verticalSpeed = BossLocomotion.TickGravity(controller, verticalSpeed, Time.deltaTime);
             Vector3 previousPosition = transform.position;
             CollisionFlags collision = controller.Move(displacement + Vector3.up * (verticalSpeed * Time.deltaTime));
             if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
@@ -199,7 +195,8 @@ namespace AshenTrial
                 chargeRemaining -= step;
                 return chargeDirection * step;
             }
-            if (phase == AttackPhase.Windup && currentPattern != Pattern.CircleAoE)
+            if (phase == AttackPhase.Windup && currentPattern != Pattern.CircleAoE &&
+                (currentPattern != Pattern.MeleeCombo || remainingTime > Mathf.Min(meleeDirectionLockLead, config.AttackWindup)))
                 RotateTowards(toTarget);
             if (phase == AttackPhase.Windup)
                 telegraph.Show(currentPattern, config.ChargeDistance, CurrentAoERadius);
@@ -222,6 +219,7 @@ namespace AshenTrial
                     hitbox.SetActive(false);
                     phase = AttackPhase.Interval;
                     remainingTime = config.MeleeInterval;
+                    telegraph.Show(currentPattern, config.ChargeDistance, CurrentAoERadius);
                 }
                 else EnterRecovery();
             }

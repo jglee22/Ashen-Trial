@@ -27,6 +27,9 @@ namespace AshenTrial
         [SerializeField] private Boss03Controller boss03;
         [SerializeField, Min(0.01f)] private float rushClipSpeed = 10f;
         [SerializeField, Min(0f)] private float movementBlend = 0.06f;
+        [SerializeField, Range(0.01f, 0.59f)] private float boss01MeleeImpactTime = 0.43f;
+        [SerializeField, Range(0.01f, 0.99f)] private float boss01AoEReleaseTime = 0.25f;
+        [SerializeField, Range(0.01f, 0.99f)] private float boss02CastReleaseTime = 0.68f;
         private int currentAnimation;
         private int currentSegment = -1;
         private float segmentDuration;
@@ -77,9 +80,9 @@ namespace AshenTrial
             if (pattern == BossController.Pattern.MeleeCombo)
             {
                 if (phase == BossController.AttackPhase.Windup || phase == BossController.AttackPhase.Interval)
-                    PlayTimed(Melee[Mathf.Clamp(boss01.SwingIndex, 0, 2)], segment, boss01.PhaseTimeRemaining, 0f, 0.32f);
+                    PlayTimed(Melee[Mathf.Clamp(boss01.SwingIndex, 0, 2)], segment, boss01.PhaseTimeRemaining, 0f, boss01MeleeImpactTime);
                 else if (phase == BossController.AttackPhase.Active)
-                    PlayTimed(Melee[Mathf.Clamp(boss01.SwingIndex - 1, 0, 2)], segment, boss01.PhaseTimeRemaining, 0.32f, 0.6f);
+                    PlayTimed(Melee[Mathf.Clamp(boss01.SwingIndex - 1, 0, 2)], segment, boss01.PhaseTimeRemaining, boss01MeleeImpactTime, 0.6f);
                 else if (state == BossController.BossState.Recovery)
                     PlayTimed(Melee[2], segment, boss01.PhaseTimeRemaining, 0.6f, 1f);
                 else PlayLoop(Locomotion);
@@ -89,8 +92,8 @@ namespace AshenTrial
                     phase == BossController.AttackPhase.Active ? speed / rushClipSpeed : 1f);
             else if (pattern == BossController.Pattern.CircleAoE)
                 PlayTimed(GroundCast, segment, boss01.PhaseTimeRemaining,
-                    state == BossController.BossState.Recovery ? 0.5f : 0f,
-                    state == BossController.BossState.Recovery ? 1f : 0.5f);
+                    state == BossController.BossState.Recovery ? boss01AoEReleaseTime : 0f,
+                    state == BossController.BossState.Recovery ? 1f : boss01AoEReleaseTime);
             else PlayLoop(Locomotion);
         }
 
@@ -102,7 +105,8 @@ namespace AshenTrial
                 bool recovering = state == Boss02Controller.BossState.Recovery;
                 int segment = (int)state * 10 + (int)boss02.CurrentPattern;
                 PlayTimed(boss02.CurrentPattern == Boss02Controller.Pattern.GroundAoE ? GroundCast : Cast,
-                    segment, boss02.PhaseTimeRemaining, recovering ? 0.45f : 0f, recovering ? 1f : 0.45f);
+                    segment, boss02.PhaseTimeRemaining, recovering ? boss02CastReleaseTime : 0f,
+                    recovering ? 1f : boss02CastReleaseTime);
             }
             else PlayLoop(Locomotion);
         }
