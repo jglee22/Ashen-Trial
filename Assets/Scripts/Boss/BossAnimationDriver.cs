@@ -30,6 +30,7 @@ namespace AshenTrial
         [SerializeField, Range(0.01f, 0.59f)] private float boss01MeleeImpactTime = 0.43f;
         [SerializeField, Range(0.01f, 0.99f)] private float boss01AoEReleaseTime = 0.25f;
         [SerializeField, Range(0.01f, 0.99f)] private float boss02CastReleaseTime = 0.68f;
+        [SerializeField, Range(0.01f, 0.99f)] private float boss03RadialReleaseTime = 0.68f;
         private int currentAnimation;
         private int currentSegment = -1;
         private float segmentDuration;
@@ -118,7 +119,7 @@ namespace AshenTrial
             if (pattern == Boss03Controller.Pattern.SequentialGroundBurst)
             {
                 // Keep one uninterrupted loop across successive windups and burst intervals.
-                PlayLoop(GroundCast);
+                PlayLoop(state == Boss03Controller.BossState.Recovery ? Locomotion : GroundCast);
             }
             else if (pattern == Boss03Controller.Pattern.DashStrike &&
                 (state == Boss03Controller.BossState.Windup || state == Boss03Controller.BossState.Dash))
@@ -128,7 +129,7 @@ namespace AshenTrial
             {
                 bool recovering = state == Boss03Controller.BossState.Recovery;
                 PlayTimed(Cast, (int)state, boss03.PhaseTimeRemaining,
-                    recovering ? 0.45f : 0f, recovering ? 1f : 0.45f);
+                    recovering ? boss03RadialReleaseTime : 0f, recovering ? 1f : boss03RadialReleaseTime);
             }
             else PlayLoop(Locomotion);
         }
