@@ -17,6 +17,7 @@ namespace AshenTrial
         [SerializeField] private Button[] buttons;
         [SerializeField] private TMP_Text[] names;
         [SerializeField] private TMP_Text[] descriptions;
+        [SerializeField] private GameAudio gameAudio;
         private readonly HashSet<UpgradeDefinition> selectedUpgrades = new HashSet<UpgradeDefinition>();
         private readonly UpgradeDefinition[] choices = new UpgradeDefinition[ChoiceCount];
         private int[] rollIndices;
@@ -96,6 +97,7 @@ namespace AshenTrial
                 return;
             }
             selectedUpgrades.Add(choices[index]);
+            gameAudio?.PlayUiConfirm();
             foreach (Button button in buttons) button.interactable = false;
             selectionPanel.SetActive(false);
             SelectionCompleted?.Invoke();

@@ -19,6 +19,7 @@ namespace AshenTrial
         [SerializeField] private Health targetHealth;
         [SerializeField] private AttackHitbox hitbox;
         [SerializeField] private BossTelegraph telegraph;
+        [SerializeField] private GameAudio gameAudio;
         [SerializeField, Min(0f)] private float meleeDirectionLockLead = 0.15f;
         [SerializeField] private FightPhase fightPhase = FightPhase.One;
         [SerializeField] private BossState state;
@@ -210,6 +211,7 @@ namespace AshenTrial
                 {
                     swingIndex++;
                     hitbox.BeginSwing(config.AttackDamage, transform);
+                    gameAudio?.PlayBossMeleeSwing();
                     hitbox.SetActive(true);
                     phase = AttackPhase.Active;
                     remainingTime = config.AttackActiveDuration;
@@ -230,11 +232,13 @@ namespace AshenTrial
                 chargeDirection.Normalize();
                 chargeRemaining = config.ChargeDistance;
                 hitbox.BeginSwing(config.ChargeDamage, transform);
+                gameAudio?.PlayBossCharge();
                 hitbox.SetActive(true);
                 phase = AttackPhase.Active;
             }
             else if (currentPattern == Pattern.CircleAoE)
             {
+                gameAudio?.PlayBossAoE();
                 if (toTarget.magnitude <= CurrentAoERadius)
                     targetHealth.TakeDamage(config.AoEDamage);
                 EnterRecovery();

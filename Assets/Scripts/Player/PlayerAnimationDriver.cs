@@ -29,8 +29,8 @@ namespace AshenTrial
         [SerializeField] private AnimationClip hitClip;
         [SerializeField, Min(0f)] private float locomotionBlend = 0.06f;
         [SerializeField, Min(0.01f)] private float rollVisualDuration = 0.4f;
-        [SerializeField, Range(0.01f, 0.99f)] private float attackImpactTime = 0.43f;
-        [SerializeField, Range(0.01f, 0.99f)] private float attackRecoveryTime = 0.6f;
+        [SerializeField] private float[] attackImpactTimes;
+        [SerializeField] private float[] attackRecoveryTimes;
         private int currentState;
         private int previousCombo;
         private bool wasDodging;
@@ -43,7 +43,9 @@ namespace AshenTrial
         {
             if (animator == null || characterController == null || movement == null || combat == null ||
                 dodge == null || health == null || hitClip == null || attackClips == null || attackClips.Length != 3 ||
-                rollClips == null || rollClips.Length != 4 || System.Array.Exists(attackClips, c => c == null) ||
+                rollClips == null || rollClips.Length != 4 || attackImpactTimes == null || attackImpactTimes.Length != 3 ||
+                attackRecoveryTimes == null || attackRecoveryTimes.Length != 3 ||
+                System.Array.Exists(attackClips, c => c == null) ||
                 System.Array.Exists(rollClips, c => c == null) || animator.runtimeAnimatorController == null)
             {
                 Debug.LogError("PlayerAnimationDriver: Animator, gameplay and animation references are required.", this);
@@ -112,8 +114,8 @@ namespace AshenTrial
             else if (combat.ComboStep > 0)
             {
                 int index = combat.ComboStep - 1;
-                float impact = Mathf.Clamp(attackImpactTime, 0.01f, 0.98f);
-                float recovery = Mathf.Clamp(attackRecoveryTime, impact + 0.01f, 0.99f);
+                float impact = Mathf.Clamp(attackImpactTimes[index], 0.01f, 0.98f);
+                float recovery = Mathf.Clamp(attackRecoveryTimes[index], impact + 0.01f, 0.99f);
                 float from = combat.Phase == PlayerCombat.AttackPhase.Windup ? 0f :
                     combat.Phase == PlayerCombat.AttackPhase.Active ? impact : recovery;
                 float to = combat.Phase == PlayerCombat.AttackPhase.Windup ? impact :

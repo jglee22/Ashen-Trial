@@ -15,6 +15,7 @@ namespace AshenTrial
         [SerializeField] private PlayerDodge dodge;
         [SerializeField] private Health health;
         [SerializeField] private PlayerUpgradeState upgrades;
+        [SerializeField] private GameAudio gameAudio;
         [SerializeField] private AttackPhase phase;
         [SerializeField] private int comboStep;
         [SerializeField] private bool nextAttackQueued;
@@ -109,6 +110,7 @@ namespace AshenTrial
                 case AttackPhase.Windup:
                     phase = AttackPhase.Active;
                     remainingTime = ActiveDuration;
+                    gameAudio?.PlayPlayerSwing(comboStep);
                     hitbox.SetActive(true);
                     break;
                 case AttackPhase.Active:

@@ -24,6 +24,7 @@ namespace AshenTrial
         [SerializeField] private GameObject gameOverPanel;
         [SerializeField] private GameObject runCompletePanel;
         [SerializeField] private UpgradeSelectionController upgradeSelection;
+        [SerializeField] private GameAudio gameAudio;
         [SerializeField] private GameFlowState state;
         [SerializeField] private int currentBossIndex;
         private bool retryRequested;
@@ -103,6 +104,7 @@ namespace AshenTrial
         private void OnBossDied(Health source)
         {
             if (state != GameFlowState.Combat || source != CurrentBossHealth) return;
+            gameAudio?.PlayBossDeath();
             SetPlayerControls(false);
             if (currentBossIndex == bosses.Length - 1)
             {
@@ -110,6 +112,7 @@ namespace AshenTrial
                 bossDefeatedPanel.SetActive(false);
                 gameOverPanel.SetActive(false);
                 runCompletePanel.SetActive(true);
+                gameAudio?.PlayRunComplete();
             }
             else
             {
@@ -149,6 +152,7 @@ namespace AshenTrial
             SetPlayerControls(false);
             bosses[currentBossIndex].root.SetActive(false);
             gameOverPanel.SetActive(true);
+            gameAudio?.PlayGameOver();
             StateChanged?.Invoke();
         }
 
@@ -162,6 +166,7 @@ namespace AshenTrial
                 return;
             }
             retryRequested = true;
+            gameAudio?.PlayUiClick();
             SceneManager.LoadScene(scene.buildIndex);
         }
     }

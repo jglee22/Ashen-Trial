@@ -17,6 +17,7 @@ namespace AshenTrial
         [SerializeField] private BossProjectilePool projectilePool;
         [SerializeField] private Transform projectileSpawn;
         [SerializeField] private Boss03Telegraph telegraph;
+        [SerializeField] private GameAudio gameAudio;
         [SerializeField] private BossState state;
         [SerializeField] private Pattern currentPattern;
         [SerializeField] private Pattern previousPattern;
@@ -210,10 +211,12 @@ namespace AshenTrial
                 dashRemaining = config.dashDistance;
                 state = BossState.Dash;
                 dashHitbox.BeginSwing(config.dashDamage, transform);
+                gameAudio?.PlayBossDash();
                 dashHitbox.SetActive(true);
             }
             else if (currentPattern == Pattern.RadialBarrage)
             {
+                gameAudio?.PlayMagicCast();
                 for (int i = 0; i < CurrentRadialCount; i++)
                 {
                     Vector3 direction = Quaternion.Euler(0f, i * (360f / CurrentRadialCount), 0f) * transform.forward;
@@ -224,6 +227,7 @@ namespace AshenTrial
             }
             else
             {
+                gameAudio?.PlaySequentialBurst();
                 Vector3 delta = target.position - burstTarget;
                 delta.y = 0f;
                 if (delta.sqrMagnitude <= config.burstRadius * config.burstRadius) targetHealth.TakeDamage(config.burstDamage);

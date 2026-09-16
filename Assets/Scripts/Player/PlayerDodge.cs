@@ -13,6 +13,7 @@ namespace AshenTrial
         [SerializeField] private Health health;
         [SerializeField] private PlayerUpgradeState upgrades;
         [SerializeField] private InputActionReference dodgeActionReference;
+        [SerializeField] private GameAudio gameAudio;
         [SerializeField] private bool isDodging;
         private InputAction dodgeAction;
         private Vector3 direction;
@@ -60,6 +61,7 @@ namespace AshenTrial
             remaining = config.DodgeDuration;
             speed = config.DodgeDistance / remaining;
             isDodging = true;
+            gameAudio?.PlayDodge();
         }
 
         // Movement is the only CharacterController.Move caller.

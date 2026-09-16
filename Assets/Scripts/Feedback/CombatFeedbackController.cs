@@ -18,6 +18,7 @@ namespace AshenTrial
         [SerializeField] private PlayerFollowCamera followCamera;
         [SerializeField] private Camera viewCamera;
         [SerializeField] private DamageNumber damageNumberPrefab;
+        [SerializeField] private GameAudio gameAudio;
         [Header("Hit Stop")]
         [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
         [Header("Camera Shake")]
@@ -73,6 +74,8 @@ namespace AshenTrial
                 target.health.transform.position + Vector3.up * numberHeight, viewCamera.transform.rotation);
             number.Initialize(amount, viewCamera, numberDuration, numberRise);
             bool playerHit = target.health == playerHealth;
+            if (playerHit) gameAudio?.PlayPlayerDamage();
+            else gameAudio?.PlayBossHit();
             followCamera.Shake(playerHit ? playerShakeStrength : bossShakeStrength,
                 playerHit ? playerShakeDuration : bossShakeDuration);
             if (playerHit || hitStopDuration <= 0f) return;

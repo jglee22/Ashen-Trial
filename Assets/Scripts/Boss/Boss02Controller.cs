@@ -16,6 +16,7 @@ namespace AshenTrial
         [SerializeField] private BossProjectilePool projectilePool;
         [SerializeField] private Transform projectileSpawn;
         [SerializeField] private Boss02Telegraph telegraph;
+        [SerializeField] private GameAudio gameAudio;
         [SerializeField] private BossState state;
         [SerializeField] private Pattern currentPattern;
         [SerializeField] private Pattern previousPattern;
@@ -203,12 +204,14 @@ namespace AshenTrial
             telegraph.Hide();
             if (currentPattern == Pattern.GroundAoE)
             {
+                gameAudio?.PlayMagicBurst();
                 Vector3 delta = target.position - groundTarget;
                 delta.y = 0f;
                 if (delta.sqrMagnitude <= CurrentAoERadius * CurrentAoERadius) targetHealth.TakeDamage(config.aoeDamage);
             }
             else
             {
+                gameAudio?.PlayMagicCast();
                 int count = CurrentShotCount;
                 for (int i = 0; i < count; i++)
                 {
