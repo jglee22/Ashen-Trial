@@ -5,7 +5,7 @@ namespace AshenTrial
     [CreateAssetMenu(fileName = "Upgrade", menuName = "Ashen Trial/Upgrade")]
     public sealed class UpgradeDefinition : ScriptableObject
     {
-        public enum UpgradeType { AttackDamage, MoveSpeed, MaxHealth, AttackSpeed, DodgeCooldown, ComboFinisher }
+        public enum UpgradeType { AttackDamage, MoveSpeed, MaxHealth, AttackSpeed, DodgeCooldown, ComboFinisher, Desperation }
         [SerializeField] private string id;
         [SerializeField] private string displayName;
         [SerializeField, TextArea] private string description;

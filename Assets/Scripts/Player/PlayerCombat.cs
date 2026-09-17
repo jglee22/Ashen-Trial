@@ -26,7 +26,8 @@ namespace AshenTrial
 
         public AttackPhase Phase => phase;
         public int ComboStep => comboStep;
-        public float AttackDamage => config.AttackDamage * (upgrades != null ? upgrades.AttackDamageMultiplier : 1f);
+        public float AttackDamage => config.AttackDamage * (upgrades != null
+            ? upgrades.AttackDamageMultiplier * upgrades.GetDesperationMultiplier(health) : 1f);
         public float FinisherDamage => AttackDamage * (upgrades != null ? upgrades.FinisherDamageMultiplier : 1f);
         public float AttackSpeedMultiplier => upgrades != null ? upgrades.AttackSpeedMultiplier : 1f;
         public float WindupDuration => config.WindupDuration / AttackSpeedMultiplier;

@@ -11,8 +11,11 @@ namespace AshenTrial
         public float AttackSpeedMultiplier { get; private set; } = 1f;
         public float DodgeCooldownMultiplier { get; private set; } = 1f;
         public float FinisherDamageMultiplier { get; private set; } = 1f;
+        public float DesperationDamageMultiplier { get; private set; } = 1f;
         public float MaxHealthBonus { get; private set; }
+        public bool HasDesperation { get; private set; }
         public UpgradeDefinition SelectedUpgrade { get; private set; }
+        private const float DesperationHealthThreshold = 0.5f;
 
         private void Awake()
         {
@@ -55,12 +58,25 @@ namespace AshenTrial
                 case UpgradeDefinition.UpgradeType.ComboFinisher:
                     FinisherDamageMultiplier *= 1f + upgrade.Value;
                     break;
+                case UpgradeDefinition.UpgradeType.Desperation:
+                    HasDesperation = true;
+                    DesperationDamageMultiplier = 1f + upgrade.Value;
+                    break;
                 default:
                     Debug.LogError("PlayerUpgradeState: Unsupported upgrade type.", this);
                     return false;
             }
             SelectedUpgrade = upgrade;
             return true;
+        }
+
+        public float CurrentDesperationMultiplier => GetDesperationMultiplier(health);
+
+        public float GetDesperationMultiplier(Health targetHealth)
+        {
+            if (!HasDesperation || targetHealth == null) return 1f;
+            if (targetHealth.CurrentHp > targetHealth.MaxHp * DesperationHealthThreshold) return 1f;
+            return DesperationDamageMultiplier;
         }
     }
 }
