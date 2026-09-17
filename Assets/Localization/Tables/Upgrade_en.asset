@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Upgrade_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 1fb2e5c063ae2114aa5302b66c6dc0df, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 390488064
+    m_Localized: POWER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876672
+    m_Localized: Increases attack damage by 20%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876673
+    m_Localized: SWIFT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876674
+    m_Localized: Increases movement speed by 15%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876675
+    m_Localized: VITALITY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876676
+    m_Localized: Increases max HP by 25 and restores 25 HP.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876677
+    m_Localized: FURY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876678
+    m_Localized: Increases attack speed by 20%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876679
+    m_Localized: QUICKSTEP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876680
+    m_Localized: Reduces dodge cooldown by 20%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876681
+    m_Localized: FINISHER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876682
+    m_Localized: Increases the third combo attack's damage by 50%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876683
+    m_Localized: DESPERATION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876684
+    m_Localized: Increases attack damage by 30% while at or below 50% HP.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

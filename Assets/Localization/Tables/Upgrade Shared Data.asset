@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Upgrade Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Upgrade
+  m_TableCollectionNameGuidString: 1fb2e5c063ae2114aa5302b66c6dc0df
+  m_Entries:
+  - m_Id: 390488064
+    m_Key: upgrade.power.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876672
+    m_Key: upgrade.power.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876673
+    m_Key: upgrade.swift.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876674
+    m_Key: upgrade.swift.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876675
+    m_Key: upgrade.vitality.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876676
+    m_Key: upgrade.vitality.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876677
+    m_Key: upgrade.fury.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876678
+    m_Key: upgrade.fury.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876679
+    m_Key: upgrade.quickstep.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876680
+    m_Key: upgrade.quickstep.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876681
+    m_Key: upgrade.finisher.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876682
+    m_Key: upgrade.finisher.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876683
+    m_Key: upgrade.desperation.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398876684
+    m_Key: upgrade.desperation.description
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 662505622022128446
+  references:
+    version: 2
+    RefIds:
+    - rid: 662505622022128446
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1789681850571

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using UnityEngine.Serialization;
 
@@ -80,10 +82,9 @@ namespace AshenTrial
                 rollIndices[i] = rollIndices[selected];
                 rollIndices[selected] = swap;
                 choices[i] = pool[rollIndices[i]];
-                names[i].text = choices[i].DisplayName;
-                descriptions[i].text = choices[i].Description;
                 buttons[i].interactable = true;
             }
+            ApplyChoiceTexts();
             selectionPanel.SetActive(true);
         }
 
@@ -103,10 +104,32 @@ namespace AshenTrial
             SelectionCompleted?.Invoke();
         }
 
+        private void OnEnable()
+        {
+            LocalizationSettings.SelectedLocaleChanged += OnSelectedLocaleChanged;
+        }
+
         private void OnDisable()
         {
+            LocalizationSettings.SelectedLocaleChanged -= OnSelectedLocaleChanged;
             IsOpen = false;
             if (selectionPanel != null) selectionPanel.SetActive(false);
+        }
+
+        private void OnSelectedLocaleChanged(Locale _)
+        {
+            if (!IsOpen) return;
+            ApplyChoiceTexts();
+        }
+
+        private void ApplyChoiceTexts()
+        {
+            for (int i = 0; i < ChoiceCount; i++)
+            {
+                if (choices[i] == null || names[i] == null || descriptions[i] == null) continue;
+                names[i].text = choices[i].DisplayName;
+                descriptions[i].text = choices[i].Description;
+            }
         }
     }
 }
