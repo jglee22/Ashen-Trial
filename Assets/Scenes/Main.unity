@@ -2353,7 +2353,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 56
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -2380,7 +2380,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40965605, y: 0, z: 0, w: 0.9122401}
-  m_LocalPosition: {x: 0, y: 10, z: -8}
+  m_LocalPosition: {x: 0, y: 8.8, z: -7.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2443,7 +2443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AshenTrial.PlayerFollowCamera
   target: {fileID: 1051553923}
-  offset: {x: 0, y: 10, z: -8}
+  offset: {x: 0, y: 8.8, z: -7.2}
   lookOffset: {x: 0, y: 1, z: 0}
   followSpeed: 10
 --- !u!1 &334131665
@@ -4660,6 +4660,8 @@ MonoBehaviour:
   gameAudio: {fileID: 535839362}
   state: 0
   currentBossIndex: 0
+  bossDeathResultDelay: 0.7
+  playerDeathResultDelay: 0.5
 --- !u!4 &609936724
 Transform:
   m_ObjectHideFlags: 0

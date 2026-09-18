@@ -27,10 +27,16 @@ namespace AshenTrial
         [SerializeField] private GameAudio gameAudio;
         [SerializeField] private GameFlowState state;
         [SerializeField] private int currentBossIndex;
+        [SerializeField, Min(0f)] private float bossDeathResultDelay = 0.7f;
+        [SerializeField, Min(0f)] private float playerDeathResultDelay = 0.5f;
         private bool retryRequested;
         private Health observedBoss;
         private System.Action bossDied;
+        private PendingReveal pendingReveal;
+        private float revealAt;
         public event System.Action StateChanged;
+
+        private enum PendingReveal { None, Upgrade, RunComplete, GameOver }
 
         public GameFlowState State => state;
         public int CurrentBossIndex => currentBossIndex;
@@ -83,6 +89,13 @@ namespace AshenTrial
             if (playerHealth != null) playerHealth.Died -= OnPlayerDied;
             if (upgradeSelection != null) upgradeSelection.SelectionCompleted -= OnSelectionCompleted;
             UnsubscribeBoss();
+            pendingReveal = PendingReveal.None;
+        }
+
+        private void Update()
+        {
+            if (pendingReveal == PendingReveal.None || Time.unscaledTime < revealAt) return;
+            RevealPending();
         }
 
         private void SubscribeCurrentBoss()
@@ -103,24 +116,11 @@ namespace AshenTrial
 
         private void OnBossDied(Health source)
         {
-            if (state != GameFlowState.Combat || source != CurrentBossHealth) return;
+            if (state != GameFlowState.Combat || pendingReveal != PendingReveal.None || source != CurrentBossHealth) return;
             gameAudio?.PlayBossDeath();
             SetPlayerControls(false);
-            if (currentBossIndex == bosses.Length - 1)
-            {
-                state = GameFlowState.RunComplete;
-                bossDefeatedPanel.SetActive(false);
-                gameOverPanel.SetActive(false);
-                runCompletePanel.SetActive(true);
-                gameAudio?.PlayRunComplete();
-            }
-            else
-            {
-                state = GameFlowState.BossDefeated;
-                bossDefeatedPanel.SetActive(true);
-                upgradeSelection.Show();
-            }
-            StateChanged?.Invoke();
+            pendingReveal = currentBossIndex == bosses.Length - 1 ? PendingReveal.RunComplete : PendingReveal.Upgrade;
+            revealAt = Time.unscaledTime + Mathf.Max(0f, bossDeathResultDelay);
         }
 
         private void OnSelectionCompleted()
@@ -147,12 +147,37 @@ namespace AshenTrial
 
         private void OnPlayerDied()
         {
-            if (state != GameFlowState.Combat) return;
-            state = GameFlowState.GameOver;
+            if (state != GameFlowState.Combat || pendingReveal != PendingReveal.None) return;
             SetPlayerControls(false);
-            bosses[currentBossIndex].root.SetActive(false);
-            gameOverPanel.SetActive(true);
-            gameAudio?.PlayGameOver();
+            pendingReveal = PendingReveal.GameOver;
+            revealAt = Time.unscaledTime + Mathf.Max(0f, playerDeathResultDelay);
+        }
+
+        private void RevealPending()
+        {
+            PendingReveal reveal = pendingReveal;
+            pendingReveal = PendingReveal.None;
+            if (reveal == PendingReveal.RunComplete)
+            {
+                state = GameFlowState.RunComplete;
+                bossDefeatedPanel.SetActive(false);
+                gameOverPanel.SetActive(false);
+                runCompletePanel.SetActive(true);
+                gameAudio?.PlayRunComplete();
+            }
+            else if (reveal == PendingReveal.Upgrade)
+            {
+                state = GameFlowState.BossDefeated;
+                bossDefeatedPanel.SetActive(true);
+                upgradeSelection.Show();
+            }
+            else if (reveal == PendingReveal.GameOver)
+            {
+                state = GameFlowState.GameOver;
+                bosses[currentBossIndex].root.SetActive(false);
+                gameOverPanel.SetActive(true);
+                gameAudio?.PlayGameOver();
+            }
             StateChanged?.Invoke();
         }
 
