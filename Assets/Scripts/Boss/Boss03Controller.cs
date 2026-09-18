@@ -87,7 +87,11 @@ namespace AshenTrial
 
         private void Update()
         {
-            if (health.IsDead) { OnDeath(); return; }
+            if (health.IsDead)
+            {
+                if (state != BossState.Dead) OnDeath();
+                return;
+            }
             if (target == null || targetHealth == null || targetHealth.IsDead || !target.gameObject.activeInHierarchy)
             {
                 CancelPattern();
