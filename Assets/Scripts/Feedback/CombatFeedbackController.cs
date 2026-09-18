@@ -19,6 +19,8 @@ namespace AshenTrial
         [SerializeField] private Camera viewCamera;
         [SerializeField] private DamageNumber damageNumberPrefab;
         [SerializeField] private GameAudio gameAudio;
+        [SerializeField] private PlayerCombat playerCombat;
+        [SerializeField] private GameObject playerHitImpactPrefab;
         [Header("Hit Stop")]
         [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
         [Header("Camera Shake")]
@@ -33,10 +35,17 @@ namespace AshenTrial
         [SerializeField, Min(0.01f)] private float numberDuration = 0.7f;
         [SerializeField] private float numberHeight = 2.4f;
         [SerializeField] private float numberRise = 0.8f;
+        [Header("Hit Impact")]
+        [SerializeField, Min(0.05f)] private float hitImpactLifetime = 0.4f;
+        [SerializeField, Min(1f)] private float uppercutImpactScale = 1.25f;
+        private const int UppercutComboStep = 3;
         private System.Action<float>[] handlers;
         private bool hitStopped;
         private float stopUntil;
         private float previousTimeScale;
+        private bool pendingHitImpact;
+        private Vector3 pendingHitImpactFallback;
+        private float pendingHitImpactScale;
 
         private void Awake()
         {
@@ -78,6 +87,7 @@ namespace AshenTrial
             else gameAudio?.PlayBossHit();
             followCamera.Shake(playerHit ? playerShakeStrength : bossShakeStrength,
                 playerHit ? playerShakeDuration : bossShakeDuration);
+            if (!playerHit) QueuePlayerHitImpact(target);
             if (playerHit || hitStopDuration <= 0f) return;
             if (!hitStopped)
             {
@@ -95,6 +105,45 @@ namespace AshenTrial
                 gameFlow.State == GameFlowController.GameFlowState.RunComplete)) RestoreTimeScale();
         }
 
+        private void LateUpdate()
+        {
+            if (!pendingHitImpact) return;
+            pendingHitImpact = false;
+            SpawnPlayerHitImpact(ResolveHitImpactPosition(pendingHitImpactFallback), pendingHitImpactScale);
+        }
+
+        private void QueuePlayerHitImpact(TargetFeedback target)
+        {
+            if (playerHitImpactPrefab == null || target == null || target.health == null) return;
+            pendingHitImpactFallback = ResolveHitImpactFallback(target);
+            pendingHitImpactScale = playerCombat != null && playerCombat.ComboStep == UppercutComboStep
+                ? uppercutImpactScale : 1f;
+            pendingHitImpact = true;
+        }
+
+        private void SpawnPlayerHitImpact(Vector3 position, float scale)
+        {
+            GameObject instance = Instantiate(playerHitImpactPrefab, position, Quaternion.identity);
+            instance.transform.localScale = Vector3.one * scale;
+            Destroy(instance, hitImpactLifetime);
+        }
+
+        private Vector3 ResolveHitImpactPosition(Vector3 fallback)
+        {
+            Transform hand = playerCombat != null ? playerCombat.ImpactHand : null;
+            return hand != null ? hand.position : fallback;
+        }
+
+        private Vector3 ResolveHitImpactFallback(TargetFeedback target)
+        {
+            if (target.health.TryGetLastHitPoint(out Vector3 hitPoint))
+                return hitPoint;
+            Vector3 fallback = playerHealth.transform.position;
+            if (playerHealth.TryGetComponent(out CharacterController playerBody))
+                fallback = playerBody.bounds.center;
+            return fallback;
+        }
+
         private void RestoreTimeScale()
         {
             if (!hitStopped) return;
@@ -108,6 +157,7 @@ namespace AshenTrial
             if (handlers != null)
                 for (int i = 0; i < targets.Length; i++)
                     if (targets[i] != null && targets[i].health != null) targets[i].health.DamageApplied -= handlers[i];
+            pendingHitImpact = false;
             RestoreTimeScale();
         }
     }

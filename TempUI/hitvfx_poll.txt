@@ -1,0 +1,4 @@
+scale=1 unscaled=155.3672
+ImpactFlash playing=True count=1 time=0.2821571
+ImpactSparks playing=True count=18 time=0.2821571
+clones=1

@@ -1,0 +1,11 @@
+=== straight
+clone=(-5.47, 1.00, 5.47) scale=1.00 strike=(-6.06, 1.08, 5.48) horizDist=0.750 horizR=0.700 airGap=0.050 aboveFeet=1.000
+=== hook
+clone=(-6.13, 1.00, 5.26) scale=1.00 strike=(-6.04, 1.00, 5.75) horizDist=0.750 horizR=0.700 airGap=0.050 aboveFeet=1.000
+=== uppercut
+clone=(-5.32, 1.00, 5.68) scale=1.25 strike=(-5.77, 1.00, 5.89) horizDist=0.750 horizR=0.700 airGap=0.050 aboveFeet=1.000
+miss extra=0
+=== Boss02
+pos=(5.54, 1.00, 5.54) horizDist=0.650 horizR=0.600 airGap=0.050 aboveFeet=1.000 strikeY=1.000
+=== Boss03
+pos=(-5.54, 1.00, -5.54) horizDist=0.650 horizR=0.600 airGap=0.050 aboveFeet=1.000 strikeY=1.000

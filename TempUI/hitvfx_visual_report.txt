@@ -1,0 +1,29 @@
+=== straight
+strike=(-5.82, 1.00, 5.82)
+ccSurface=(-5.51, 1.00, 5.51)
+visualSurface=(-5.82, 1.00, 5.82) visExt=(1.48, 1.45, 0.72)
+ccVsVisual=0.450
+vfxRoot=(-5.82, 1.00, 5.82) scale=1.00 rootVsVisual=0.000 rootVsCC=0.450
+ImpactFlash count=1 local=(0.00, 0.00, 0.00) avgParticle=(0.00, 0.01, 0.01) avgVsRoot=8.285
+ImpactSparks count=8 local=(0.00, 0.00, 0.00) avgParticle=(-5.81, 0.97, 5.81) avgVsRoot=0.031
+=== hook
+strike=(-6.04, 1.00, 5.75)
+ccSurface=(-6.12, 1.00, 5.31)
+visualSurface=(-6.04, 1.00, 5.75) visExt=(1.48, 1.45, 0.72)
+ccVsVisual=0.450
+vfxRoot=(-6.04, 1.00, 5.75) scale=1.00 rootVsVisual=0.000 rootVsCC=0.450
+ImpactFlash count=1 local=(0.00, 0.00, 0.00) avgParticle=(-0.01, 0.01, 0.01) avgVsRoot=8.388
+ImpactSparks count=8 local=(0.00, 0.00, 0.00) avgParticle=(-6.06, 1.01, 5.64) avgVsRoot=0.113
+=== uppercut
+strike=(-5.77, 1.00, 5.89)
+ccSurface=(-5.37, 1.00, 5.70)
+visualSurface=(-5.77, 1.00, 5.89) visExt=(1.48, 1.45, 0.72)
+ccVsVisual=0.450
+vfxRoot=(-5.77, 1.00, 5.89) scale=1.25 rootVsVisual=0.000 rootVsCC=0.450
+ImpactFlash count=1 local=(0.00, 0.00, 0.00) avgParticle=(0.01, -0.01, 0.00) avgVsRoot=8.324
+ImpactSparks count=8 local=(0.00, 0.00, 0.00) avgParticle=(-5.76, 1.00, 5.97) avgVsRoot=0.078
+miss extra=0
+=== Boss02
+ccVsVisual=0.350 rootVsVisual=0.000
+=== Boss03
+ccVsVisual=0.350 rootVsVisual=0.000

@@ -20,12 +20,20 @@ namespace AshenTrial
         public float CurrentHp => currentHp;
         public bool IsDead => currentHp <= 0f;
 
+        public bool TryGetLastHitPoint(out Vector3 hitPoint)
+        {
+            hitPoint = lastHitPoint;
+            return hasLastHitPoint;
+        }
+
         private void Awake()
         {
             if (!initialized) Initialize(MaxHp);
         }
 
         private bool initialized;
+        private Vector3 lastHitPoint;
+        private bool hasLastHitPoint;
 
         public void Initialize(float maximum)
         {
@@ -44,7 +52,11 @@ namespace AshenTrial
             Changed?.Invoke();
         }
 
-        public void TakeDamage(float amount)
+        public void TakeDamage(float amount) => TakeDamage(amount, false, default);
+
+        public void TakeDamage(float amount, Vector3 hitPoint) => TakeDamage(amount, true, hitPoint);
+
+        private void TakeDamage(float amount, bool hasHitPoint, Vector3 hitPoint)
         {
             if (!isActiveAndEnabled || IsDead || amount <= 0f || float.IsNaN(amount)) return;
             if (DamageBlocked != null && DamageBlocked()) return;
@@ -53,7 +65,13 @@ namespace AshenTrial
             float appliedDamage = previousHp - currentHp;
             if (appliedDamage > 0f) Changed?.Invoke();
             Damaged?.Invoke();
-            if (appliedDamage > 0f) DamageApplied?.Invoke(appliedDamage);
+            if (appliedDamage > 0f)
+            {
+                hasLastHitPoint = hasHitPoint;
+                lastHitPoint = hitPoint;
+                DamageApplied?.Invoke(appliedDamage);
+                hasLastHitPoint = false;
+            }
             if (IsDead)
             {
                 Died?.Invoke();

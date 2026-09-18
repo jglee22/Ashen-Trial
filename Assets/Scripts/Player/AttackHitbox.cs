@@ -12,6 +12,7 @@ namespace AshenTrial
         private readonly HashSet<Health> hitTargets = new HashSet<Health>();
         private BoxCollider hitCollider;
         private Transform owner;
+        private Transform presentationHand;
         private float damage;
         public bool IsActive { get; private set; }
 
@@ -21,12 +22,13 @@ namespace AshenTrial
             SetActive(false);
         }
 
-        public void BeginSwing(float amount, Transform attacker)
+        public void BeginSwing(float amount, Transform attacker, Transform impactHand = null)
         {
             SetActive(false);
             hitTargets.Clear();
             damage = amount;
             owner = attacker;
+            presentationHand = impactHand;
         }
 
         public void SetActive(bool active)
@@ -71,7 +73,10 @@ namespace AshenTrial
             // Child attack triggers and visual markers must not extend a character's hurt volume.
             if (health.TryGetComponent<CharacterController>(out var body) && other != body) return;
             if (!hitTargets.Add(health)) return;
-            health.TakeDamage(damage);
+            Vector3 hitPoint = presentationHand != null
+                ? presentationHand.position
+                : transform.TransformPoint(hitCollider.center);
+            health.TakeDamage(damage, hitPoint);
         }
 
         private void OnDisable() => SetActive(false);

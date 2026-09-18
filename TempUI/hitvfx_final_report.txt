@@ -1,0 +1,13 @@
+=== straight
+pos=(-5.38, 1.49, 5.30) scale=(1.00, 1.00, 1.00)
+ImpactFlash playing=True count=1
+ImpactSparks playing=True count=8
+=== hook
+pos=(-5.38, 1.49, 5.30) scale=(1.00, 1.00, 1.00)
+ImpactFlash playing=True count=1
+ImpactSparks playing=True count=8
+=== uppercut
+pos=(-5.38, 1.49, 5.30) scale=(1.25, 1.25, 1.25)
+ImpactFlash playing=True count=1
+ImpactSparks playing=True count=8
+miss extra=0

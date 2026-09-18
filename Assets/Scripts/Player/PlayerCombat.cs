@@ -21,11 +21,14 @@ namespace AshenTrial
         [SerializeField] private bool nextAttackQueued;
         [SerializeField] private bool comboWindowOpen;
         private InputAction attackAction;
+        private Transform rightHand;
+        private Transform leftHand;
         private float remainingTime;
         private float recoveryTime;
 
         public AttackPhase Phase => phase;
         public int ComboStep => comboStep;
+        public Transform ImpactHand => comboStep == 2 ? leftHand : rightHand;
         public float AttackDamage => config.AttackDamage * (upgrades != null
             ? upgrades.AttackDamageMultiplier * upgrades.GetDesperationMultiplier(health) : 1f);
         public float FinisherDamage => AttackDamage * (upgrades != null ? upgrades.FinisherDamageMultiplier : 1f);
@@ -49,7 +52,21 @@ namespace AshenTrial
                 return;
             }
             attackAction = attackActionReference.action.Clone();
+            CacheImpactHands();
             ResetCombo();
+        }
+
+        private void CacheImpactHands()
+        {
+            Animator animator = GetComponentInChildren<Animator>(true);
+            if (animator == null || !animator.isHuman) return;
+            rightHand = animator.GetBoneTransform(HumanBodyBones.RightHand);
+            leftHand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+        }
+
+        private Transform ResolveImpactHand()
+        {
+            return comboStep == 2 ? leftHand : rightHand;
         }
 
         private void OnEnable() => attackAction?.Enable();
@@ -84,7 +101,8 @@ namespace AshenTrial
             comboStep = step;
             nextAttackQueued = false;
             comboWindowOpen = false;
-            hitbox.BeginSwing(step == MaxComboStep ? FinisherDamage : AttackDamage, transform);
+            hitbox.BeginSwing(step == MaxComboStep ? FinisherDamage : AttackDamage, transform,
+                ResolveImpactHand());
             phase = AttackPhase.Windup;
             remainingTime = WindupDuration;
         }
