@@ -24,6 +24,7 @@ namespace AshenTrial
         [SerializeField] private AudioClip bossDash;
         [SerializeField] private AudioClip sequentialBurst;
         [SerializeField] private AudioClip bossDeath;
+        [SerializeField] private AudioClip stoneBreak;
 
         public void PlayUiClick() => PlayUi(uiClick);
         public void PlayUiConfirm() => PlayUi(uiConfirm);
@@ -50,6 +51,7 @@ namespace AshenTrial
         public void PlayBossDash() => PlaySfx(bossDash);
         public void PlaySequentialBurst() => PlaySfx(sequentialBurst);
         public void PlayBossDeath() => PlaySfx(bossDeath);
+        public void PlayStoneBreak() => PlaySfx(stoneBreak);
 
         private void PlayUi(AudioClip clip)
         {

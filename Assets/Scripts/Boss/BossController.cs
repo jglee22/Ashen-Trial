@@ -157,6 +157,18 @@ namespace AshenTrial
             }
         }
 
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            if (currentPattern != Pattern.Charge || phase != AttackPhase.Active || hit.collider == null)
+                return;
+            DestructiblePillar pillar = hit.collider.GetComponentInParent<DestructiblePillar>();
+            if (pillar == null) return;
+            Vector3 direction = chargeDirection.sqrMagnitude > 0.0001f ? chargeDirection : transform.forward;
+            if (!pillar.TryBreak(transform.position, direction)) return;
+            if (currentPattern == Pattern.Charge && phase == AttackPhase.Active)
+                EnterRecovery();
+        }
+
         private Pattern SelectPattern(float distance)
         {
             bool melee = distance <= config.AttackRange + RangeTolerance;
