@@ -96,8 +96,6 @@ namespace AshenTrial
             {
                 Rigidbody body = bodies[i];
                 if (body == null) continue;
-                body.linearVelocity = Vector3.zero;
-                body.angularVelocity = Vector3.zero;
                 body.useGravity = Classify(body) != ChunkGroup.Base;
                 body.isKinematic = true;
             }
@@ -167,8 +165,11 @@ namespace AshenTrial
             {
                 Rigidbody body = bodies[i];
                 if (body == null) continue;
-                body.linearVelocity = Vector3.zero;
-                body.angularVelocity = Vector3.zero;
+                if (!body.isKinematic)
+                {
+                    body.linearVelocity = Vector3.zero;
+                    body.angularVelocity = Vector3.zero;
+                }
                 body.isKinematic = true;
                 ChunkGroup group = Classify(body);
                 if (group == ChunkGroup.Debris || group == ChunkGroup.Base) continue;
