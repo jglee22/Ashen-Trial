@@ -4519,6 +4519,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AshenTrial.AttackHitbox
   targetHealth: {fileID: 1051553926}
+--- !u!96 &376530011 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 5678890029494167416, guid: c3126e667e5980c41bf4b19c3d9c2936, type: 3}
+  m_PrefabInstance: {fileID: 21749656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &376530012 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 1040560874699920297, guid: c3126e667e5980c41bf4b19c3d9c2936, type: 3}
+  m_PrefabInstance: {fileID: 21749656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &376530013 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 1306826035919797801, guid: c3126e667e5980c41bf4b19c3d9c2936, type: 3}
+  m_PrefabInstance: {fileID: 21749656}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &391427912
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12003,6 +12018,7 @@ GameObject:
   - component: {fileID: 1051553928}
   - component: {fileID: 1051553929}
   - component: {fileID: 1051553930}
+  - component: {fileID: 1051553931}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -12226,6 +12242,45 @@ MonoBehaviour:
   - 0.63
   heavyImpactTime: 0.36
   heavyRecoveryTime: 0.64
+--- !u!114 &1051553931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1051553920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e515fcc179621114b9feb25b46a3124d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AshenTrial.PlayerAttackSwipeVfx
+  combat: {fileID: 1051553924}
+  dodge: {fileID: 1051553925}
+  health: {fileID: 1051553926}
+  animator: {fileID: 21749669}
+  rightHandTrail: {fileID: 376530012}
+  leftHandTrail: {fileID: 376530013}
+  rightFootTrail: {fileID: 376530011}
+  straight:
+    startNormalized: 0.14
+    endNormalized: 0.32
+    trailTime: 0.16
+    width: 0.13
+  hook:
+    startNormalized: 0.22
+    endNormalized: 0.54
+    trailTime: 0.18
+    width: 0.18
+  uppercut:
+    startNormalized: 0.28
+    endNormalized: 0.56
+    trailTime: 0.2
+    width: 0.2
+  heavy:
+    startNormalized: 0.16
+    endNormalized: 0.56
+    trailTime: 0.22
+    width: 0.22
 --- !u!1 &1052369658
 GameObject:
   m_ObjectHideFlags: 0
