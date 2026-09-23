@@ -18,6 +18,11 @@ MonoBehaviour:
   windupDuration: 0.2
   activeDuration: 0.15
   recoveryDuration: 0.35
+  heavyAttackDamage: 45
+  heavyWindupDuration: 0.32
+  heavyActiveDuration: 0.18
+  heavyRecoveryDuration: 0.55
+  heavyHitboxScale: 1.15
   comboWindowStart: 0.15
   comboWindowEnd: 0.85
   maxHealth: 100

@@ -23,9 +23,12 @@ namespace AshenTrial
         [SerializeField] private GameObject playerHitImpactPrefab;
         [Header("Hit Stop")]
         [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
+        [SerializeField, Min(0f)] private float heavyHitStopDuration = 0.08f;
         [Header("Camera Shake")]
         [SerializeField, Min(0f)] private float bossShakeStrength = 0.06f;
         [SerializeField, Min(0f)] private float bossShakeDuration = 0.12f;
+        [SerializeField, Min(0f)] private float heavyShakeStrength = 0.08f;
+        [SerializeField, Min(0f)] private float heavyShakeDuration = 0.16f;
         [SerializeField, Min(0f)] private float playerShakeStrength = 0.14f;
         [SerializeField, Min(0f)] private float playerShakeDuration = 0.18f;
         [Header("Hit Flash")]
@@ -85,17 +88,20 @@ namespace AshenTrial
             bool playerHit = target.health == playerHealth;
             if (playerHit) gameAudio?.PlayPlayerDamage();
             else gameAudio?.PlayBossHit();
-            followCamera.Shake(playerHit ? playerShakeStrength : bossShakeStrength,
-                playerHit ? playerShakeDuration : bossShakeDuration);
+            bool heavyHit = !playerHit && playerCombat != null && playerCombat.IsHeavyAttacking;
+            float shakeStrength = playerHit ? playerShakeStrength : heavyHit ? heavyShakeStrength : bossShakeStrength;
+            float shakeDuration = playerHit ? playerShakeDuration : heavyHit ? heavyShakeDuration : bossShakeDuration;
+            followCamera.Shake(shakeStrength, shakeDuration);
             if (!playerHit) QueuePlayerHitImpact(target);
-            if (playerHit || hitStopDuration <= 0f) return;
+            float stopDuration = heavyHit ? heavyHitStopDuration : hitStopDuration;
+            if (playerHit || stopDuration <= 0f) return;
             if (!hitStopped)
             {
                 previousTimeScale = Time.timeScale;
                 hitStopped = true;
                 Time.timeScale = 0f;
             }
-            stopUntil = Mathf.Max(stopUntil, Time.unscaledTime + hitStopDuration);
+            stopUntil = Mathf.Max(stopUntil, Time.unscaledTime + stopDuration);
         }
 
         private void Update()
@@ -116,7 +122,8 @@ namespace AshenTrial
         {
             if (playerHitImpactPrefab == null || target == null || target.health == null) return;
             pendingHitImpactFallback = ResolveHitImpactFallback(target);
-            pendingHitImpactScale = playerCombat != null && playerCombat.ComboStep == UppercutComboStep
+            pendingHitImpactScale = playerCombat != null &&
+                (playerCombat.IsHeavyAttacking || playerCombat.ComboStep == UppercutComboStep)
                 ? uppercutImpactScale : 1f;
             pendingHitImpact = true;
         }

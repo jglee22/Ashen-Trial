@@ -12,6 +12,12 @@ namespace AshenTrial
         [SerializeField, Min(0f)] private float windupDuration = 0.2f;
         [SerializeField, Min(0.01f)] private float activeDuration = 0.15f;
         [SerializeField, Min(0f)] private float recoveryDuration = 0.35f;
+        [Header("Heavy Attack")]
+        [SerializeField, Min(0f)] private float heavyAttackDamage = 45f;
+        [SerializeField, Min(0f)] private float heavyWindupDuration = 0.35f;
+        [SerializeField, Min(0.01f)] private float heavyActiveDuration = 0.18f;
+        [SerializeField, Min(0f)] private float heavyRecoveryDuration = 0.55f;
+        [SerializeField, Min(1f)] private float heavyHitboxScale = 1.15f;
         [Header("Combo Window (Recovery normalized time)")]
         [SerializeField, Range(0f, 1f)] private float comboWindowStart = 0.15f;
         [SerializeField, Range(0f, 1f)] private float comboWindowEnd = 0.85f;
@@ -28,6 +34,11 @@ namespace AshenTrial
         public float WindupDuration => Mathf.Max(0f, windupDuration);
         public float ActiveDuration => Mathf.Max(0.01f, activeDuration);
         public float RecoveryDuration => Mathf.Max(0f, recoveryDuration);
+        public float HeavyAttackDamage => Mathf.Max(0f, heavyAttackDamage);
+        public float HeavyWindupDuration => Mathf.Max(0f, heavyWindupDuration);
+        public float HeavyActiveDuration => Mathf.Max(0.01f, heavyActiveDuration);
+        public float HeavyRecoveryDuration => Mathf.Max(0f, heavyRecoveryDuration);
+        public float HeavyHitboxScale => Mathf.Max(1f, heavyHitboxScale);
         public float ComboWindowStart => Mathf.Clamp01(comboWindowStart);
         public float ComboWindowEnd => Mathf.Clamp(comboWindowEnd, ComboWindowStart, 1f);
         public float MaxHealth => Mathf.Max(1f, maxHealth);

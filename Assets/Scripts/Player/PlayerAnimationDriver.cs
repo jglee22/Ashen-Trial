@@ -14,6 +14,7 @@ namespace AshenTrial
         private static readonly int Death = Animator.StringToHash("Base Layer.Death");
         private static readonly int[] Attacks = { Animator.StringToHash("Base Layer.Attack1"),
             Animator.StringToHash("Base Layer.Attack2"), Animator.StringToHash("Base Layer.Attack3") };
+        private static readonly int HeavyAttack = Animator.StringToHash("Base Layer.HeavyAttack");
         private static readonly int[] Rolls = { Animator.StringToHash("Base Layer.RollForward"),
             Animator.StringToHash("Base Layer.RollBackward"), Animator.StringToHash("Base Layer.RollLeft"),
             Animator.StringToHash("Base Layer.RollRight") };
@@ -27,13 +28,17 @@ namespace AshenTrial
         [SerializeField] private AnimationClip[] attackClips;
         [SerializeField] private AnimationClip[] rollClips;
         [SerializeField] private AnimationClip hitClip;
+        [SerializeField] private AnimationClip heavyClip;
         [SerializeField, Min(0f)] private float locomotionBlend = 0.06f;
         [SerializeField, Min(0.01f)] private float rollVisualDuration = 0.4f;
         [SerializeField] private float[] attackImpactTimes;
         [SerializeField] private float[] attackRecoveryTimes;
+        [SerializeField, Range(0.01f, 0.98f)] private float heavyImpactTime = 0.32f;
+        [SerializeField, Range(0.02f, 0.99f)] private float heavyRecoveryTime = 0.62f;
         private int currentState;
         private int previousCombo;
         private bool wasDodging;
+        private bool wasHeavy;
         private int rollIndex;
         private float hitUntil;
         private float rollUntil;
@@ -42,7 +47,8 @@ namespace AshenTrial
         private void Awake()
         {
             if (animator == null || characterController == null || movement == null || combat == null ||
-                dodge == null || health == null || hitClip == null || attackClips == null || attackClips.Length != 3 ||
+                dodge == null || health == null || hitClip == null || heavyClip == null ||
+                attackClips == null || attackClips.Length != 3 ||
                 rollClips == null || rollClips.Length != 4 || attackImpactTimes == null || attackImpactTimes.Length != 3 ||
                 attackRecoveryTimes == null || attackRecoveryTimes.Length != 3 ||
                 System.Array.Exists(attackClips, c => c == null) ||
@@ -65,6 +71,7 @@ namespace AshenTrial
             if (health != null) health.DamageApplied -= OnDamageApplied;
             rollUntil = 0f;
             wasDodging = false;
+            wasHeavy = false;
         }
 
         private void OnDamageApplied(float damage)
@@ -92,12 +99,15 @@ namespace AshenTrial
             animator.SetFloat(MoveX, local.x, locomotionBlend, Time.deltaTime);
             animator.SetFloat(MoveY, local.z, locomotionBlend, Time.deltaTime);
 
-            bool newAttack = combat.ComboStep != 0 && combat.ComboStep != previousCombo;
+            bool newAttack = combat.IsHeavyAttacking
+                ? !wasHeavy
+                : combat.ComboStep != 0 && combat.ComboStep != previousCombo;
             bool newDodge = dodge.IsDodging && !wasDodging;
             if (newAttack || newDodge) hitUntil = 0f;
             if (newAttack) rollUntil = 0f;
             previousCombo = combat.ComboStep;
             wasDodging = dodge.IsDodging;
+            wasHeavy = combat.IsHeavyAttacking;
 
             if (newDodge)
             {
@@ -111,26 +121,37 @@ namespace AshenTrial
                 SetState(Hit, 1f);
             else if (Time.time < rollUntil)
                 SetState(Rolls[rollIndex], rollClips[rollIndex].length / Mathf.Max(0.01f, rollVisualDuration));
+            else if (combat.IsHeavyAttacking)
+                PlayMappedAttack(HeavyAttack, heavyClip, heavyImpactTime, heavyRecoveryTime,
+                    combat.HeavyWindupDuration, combat.HeavyActiveDuration, combat.HeavyRecoveryDuration);
             else if (combat.ComboStep > 0)
             {
                 int index = combat.ComboStep - 1;
-                float impact = Mathf.Clamp(attackImpactTimes[index], 0.01f, 0.98f);
-                float recovery = Mathf.Clamp(attackRecoveryTimes[index], impact + 0.01f, 0.99f);
-                float from = combat.Phase == PlayerCombat.AttackPhase.Windup ? 0f :
-                    combat.Phase == PlayerCombat.AttackPhase.Active ? impact : recovery;
-                float to = combat.Phase == PlayerCombat.AttackPhase.Windup ? impact :
-                    combat.Phase == PlayerCombat.AttackPhase.Active ? recovery : 1f;
-                float duration = combat.Phase == PlayerCombat.AttackPhase.Windup ? combat.WindupDuration :
-                    combat.Phase == PlayerCombat.AttackPhase.Active ? combat.ActiveDuration : combat.RecoveryDuration;
-                // Match the contact pose to the gameplay phase, including FURY and hit stop.
-                if (currentState != Attacks[index] || animationAttackPhase != combat.Phase)
-                    animator.Play(Attacks[index], 0, from);
-                currentState = Attacks[index];
-                animationAttackPhase = combat.Phase;
-                animator.SetFloat(ActionSpeed, attackClips[index].length * (to - from) / Mathf.Max(0.0001f, duration));
+                PlayMappedAttack(Attacks[index], attackClips[index], attackImpactTimes[index],
+                    attackRecoveryTimes[index], combat.WindupDuration, combat.ActiveDuration,
+                    combat.RecoveryDuration);
             }
             else
                 SetState(Locomotion, 1f);
+        }
+
+        private void PlayMappedAttack(int state, AnimationClip clip, float impactTime, float recoveryTime,
+            float windupDuration, float activeDuration, float recoveryDuration)
+        {
+            float impact = Mathf.Clamp(impactTime, 0.01f, 0.98f);
+            float recovery = Mathf.Clamp(recoveryTime, impact + 0.01f, 0.99f);
+            float from = combat.Phase == PlayerCombat.AttackPhase.Windup ? 0f :
+                combat.Phase == PlayerCombat.AttackPhase.Active ? impact : recovery;
+            float to = combat.Phase == PlayerCombat.AttackPhase.Windup ? impact :
+                combat.Phase == PlayerCombat.AttackPhase.Active ? recovery : 1f;
+            float duration = combat.Phase == PlayerCombat.AttackPhase.Windup ? windupDuration :
+                combat.Phase == PlayerCombat.AttackPhase.Active ? activeDuration : recoveryDuration;
+            // Match the contact pose to the gameplay phase, including FURY and hit stop.
+            if (currentState != state || animationAttackPhase != combat.Phase)
+                animator.Play(state, 0, from);
+            currentState = state;
+            animationAttackPhase = combat.Phase;
+            animator.SetFloat(ActionSpeed, clip.length * (to - from) / Mathf.Max(0.0001f, duration));
         }
 
         private void SetState(int state, float speed)

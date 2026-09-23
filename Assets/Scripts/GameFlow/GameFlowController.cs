@@ -24,6 +24,7 @@ namespace AshenTrial
         [SerializeField] private GameObject gameOverPanel;
         [SerializeField] private GameObject runCompletePanel;
         [SerializeField] private UpgradeSelectionController upgradeSelection;
+        [SerializeField] private DestructiblePillar[] destructiblePillars;
         [SerializeField] private GameAudio gameAudio;
         [SerializeField] private GameFlowState state;
         [SerializeField] private int currentBossIndex;
@@ -46,9 +47,10 @@ namespace AshenTrial
         {
             if (playerHealth == null || bosses == null || bosses.Length != 3 || playerMovement == null ||
                 playerCombat == null || playerDodge == null || bossDefeatedPanel == null || gameOverPanel == null ||
-                runCompletePanel == null || upgradeSelection == null)
+                runCompletePanel == null || upgradeSelection == null ||
+                destructiblePillars == null || destructiblePillars.Length != 3)
             {
-                Debug.LogError("GameFlowController: Three bosses, player references, result panels and Upgrade Selection are required.", this);
+                Debug.LogError("GameFlowController: Three bosses, three destructible pillars, player references, result panels and Upgrade Selection are required.", this);
                 enabled = false;
                 return;
             }
@@ -65,6 +67,22 @@ namespace AshenTrial
                 {
                     if (bosses[i].root != bosses[j].root) continue;
                     Debug.LogError("GameFlowController: Boss encounters must be distinct.", this);
+                    enabled = false;
+                    return;
+                }
+            }
+            for (int i = 0; i < destructiblePillars.Length; i++)
+            {
+                if (destructiblePillars[i] == null)
+                {
+                    Debug.LogError("GameFlowController: Each destructible pillar reference is required.", this);
+                    enabled = false;
+                    return;
+                }
+                for (int j = 0; j < i; j++)
+                {
+                    if (destructiblePillars[i] != destructiblePillars[j]) continue;
+                    Debug.LogError("GameFlowController: Destructible pillars must be distinct.", this);
                     enabled = false;
                     return;
                 }
@@ -128,6 +146,7 @@ namespace AshenTrial
             if (state != GameFlowState.BossDefeated || currentBossIndex >= bosses.Length - 1) return;
             UnsubscribeBoss();
             bosses[currentBossIndex].root.SetActive(false);
+            ResetDestructiblePillars();
             currentBossIndex++;
             bosses[currentBossIndex].root.SetActive(true);
             // Subscribe after activation so the boss's own Death cleanup runs first.
@@ -136,6 +155,12 @@ namespace AshenTrial
             SetPlayerControls(true);
             state = GameFlowState.Combat;
             StateChanged?.Invoke();
+        }
+
+        private void ResetDestructiblePillars()
+        {
+            for (int i = 0; i < destructiblePillars.Length; i++)
+                destructiblePillars[i].ResetPillar();
         }
 
         private void SetPlayerControls(bool active)

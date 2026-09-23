@@ -46,7 +46,21 @@ namespace AshenTrial
         [SerializeField] private string upperPrefix = "Chunk_Upper";
         [SerializeField] private string capitalName = "Chunk_Capital";
         [SerializeField] private string debrisPrefix = "Debris_";
+        private struct ChunkRestState
+        {
+            public Vector3 localPosition;
+            public Quaternion localRotation;
+            public Vector3 localScale;
+            public bool isKinematic;
+            public bool useGravity;
+            public bool colliderEnabled;
+            public bool hasCollider;
+            public bool gameObjectActive;
+        }
+
         private Rigidbody[] bodies;
+        private ChunkRestState[] restStates;
+        private Coroutine settleRoutine;
         private bool isBroken;
 
         public bool IsBroken => isBroken;
@@ -62,6 +76,7 @@ namespace AshenTrial
 
             bodies = fracturedRoot.GetComponentsInChildren<Rigidbody>(true);
             PrepareRestingBodies();
+            CaptureRestStates();
             intactRoot.SetActive(true);
             intactCollider.enabled = true;
             fracturedRoot.SetActive(false);
@@ -85,8 +100,53 @@ namespace AshenTrial
             IgnoreCharacterControllers();
             ApplyBreakForces(direction);
             PlayFeedback();
-            StartCoroutine(SettlePhysics());
+            settleRoutine = StartCoroutine(SettlePhysics());
             return true;
+        }
+
+        public void ResetPillar()
+        {
+            if (bodies == null || restStates == null) return;
+            if (settleRoutine != null)
+            {
+                StopCoroutine(settleRoutine);
+                settleRoutine = null;
+            }
+            if (dust != null)
+                dust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            for (int i = 0; i < bodies.Length; i++)
+            {
+                Rigidbody body = bodies[i];
+                if (body == null) continue;
+                if (!body.isKinematic)
+                {
+                    body.linearVelocity = Vector3.zero;
+                    body.angularVelocity = Vector3.zero;
+                }
+                ChunkRestState rest = restStates[i];
+                body.isKinematic = rest.isKinematic;
+                body.useGravity = rest.useGravity;
+            }
+
+            fracturedRoot.SetActive(false);
+            for (int i = 0; i < bodies.Length; i++)
+            {
+                Rigidbody body = bodies[i];
+                if (body == null) continue;
+                ChunkRestState rest = restStates[i];
+                body.gameObject.SetActive(rest.gameObjectActive);
+                Transform chunk = body.transform;
+                chunk.localPosition = rest.localPosition;
+                chunk.localRotation = rest.localRotation;
+                chunk.localScale = rest.localScale;
+                if (rest.hasCollider && body.TryGetComponent(out Collider collider))
+                    collider.enabled = rest.colliderEnabled;
+            }
+
+            intactRoot.SetActive(true);
+            intactCollider.enabled = true;
+            isBroken = false;
         }
 
         private void PrepareRestingBodies()
@@ -98,6 +158,28 @@ namespace AshenTrial
                 if (body == null) continue;
                 body.useGravity = Classify(body) != ChunkGroup.Base;
                 body.isKinematic = true;
+            }
+        }
+
+        private void CaptureRestStates()
+        {
+            restStates = new ChunkRestState[bodies.Length];
+            for (int i = 0; i < bodies.Length; i++)
+            {
+                Rigidbody body = bodies[i];
+                if (body == null) continue;
+                Transform chunk = body.transform;
+                restStates[i].localPosition = chunk.localPosition;
+                restStates[i].localRotation = chunk.localRotation;
+                restStates[i].localScale = chunk.localScale;
+                restStates[i].isKinematic = body.isKinematic;
+                restStates[i].useGravity = body.useGravity;
+                restStates[i].gameObjectActive = body.gameObject.activeSelf;
+                if (body.TryGetComponent(out Collider collider))
+                {
+                    restStates[i].hasCollider = true;
+                    restStates[i].colliderEnabled = collider.enabled;
+                }
             }
         }
 

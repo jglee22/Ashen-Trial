@@ -161,6 +161,18 @@ namespace AshenTrial
             }
         }
 
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            if (state != BossState.Dash || currentPattern != Pattern.DashStrike || hit.collider == null)
+                return;
+            DestructiblePillar pillar = hit.collider.GetComponentInParent<DestructiblePillar>();
+            if (pillar == null) return;
+            Vector3 direction = dashDirection.sqrMagnitude > 0.0001f ? dashDirection : transform.forward;
+            if (!pillar.TryBreak(transform.position, direction)) return;
+            if (state == BossState.Dash)
+                EnterRecovery();
+        }
+
         private Pattern SelectPattern(float distance)
         {
             if (distance > config.preferredMaxDistance)
