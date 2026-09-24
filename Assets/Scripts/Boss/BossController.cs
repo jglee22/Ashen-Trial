@@ -32,6 +32,8 @@ namespace AshenTrial
         private float verticalSpeed;
         private Vector3 chargeDirection;
         private float chargeRemaining;
+        private bool chargeTargetLocked;
+        private bool chargeHitObstacle;
         private float chargeReadyAt;
         private float aoeReadyAt;
         private bool patternPhaseTwo;
@@ -145,6 +147,7 @@ namespace AshenTrial
             if (!isActiveAndEnabled || !controller.enabled) return;
             verticalSpeed = BossLocomotion.TickGravity(controller, verticalSpeed, Time.deltaTime);
             Vector3 previousPosition = transform.position;
+            chargeHitObstacle = false;
             CollisionFlags collision = controller.Move(displacement + Vector3.up * (verticalSpeed * Time.deltaTime));
             if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
             if (currentPattern == Pattern.Charge && phase == AttackPhase.Active)
@@ -152,7 +155,7 @@ namespace AshenTrial
                 Vector3 actualMovement = transform.position - previousPosition;
                 actualMovement.y = 0f;
                 hitbox.SweepMovement(actualMovement);
-                if (chargeRemaining <= 0f || (collision & CollisionFlags.Sides) != 0)
+                if (chargeRemaining <= 0f || chargeHitObstacle)
                     EnterRecovery();
             }
         }
@@ -161,12 +164,26 @@ namespace AshenTrial
         {
             if (currentPattern != Pattern.Charge || phase != AttackPhase.Active || hit.collider == null)
                 return;
+            if (!IsChargeObstacle(hit)) return;
             DestructiblePillar pillar = hit.collider.GetComponentInParent<DestructiblePillar>();
-            if (pillar == null) return;
-            Vector3 direction = chargeDirection.sqrMagnitude > 0.0001f ? chargeDirection : transform.forward;
-            if (!pillar.TryBreak(transform.position, direction)) return;
-            if (currentPattern == Pattern.Charge && phase == AttackPhase.Active)
-                EnterRecovery();
+            if (pillar != null)
+            {
+                Vector3 direction = chargeDirection.sqrMagnitude > 0.0001f ? chargeDirection : transform.forward;
+                pillar.TryBreak(transform.position, direction);
+            }
+            chargeHitObstacle = true;
+        }
+
+        private bool IsChargeObstacle(ControllerColliderHit hit)
+        {
+            Collider col = hit.collider;
+            if (col.isTrigger) return false;
+            // Floor contacts also invoke this callback; the old Sides mask ignored them.
+            if (Mathf.Abs(hit.normal.y) >= 0.5f) return false;
+            if (col.transform.IsChildOf(transform)) return false;
+            if (target != null && col.transform != target && col.transform.IsChildOf(target))
+                return false;
+            return true;
         }
 
         private Pattern SelectPattern(float distance)
@@ -196,6 +213,7 @@ namespace AshenTrial
             state = BossState.Attack;
             remainingTime = pattern == Pattern.MeleeCombo ? config.AttackWindup :
                 pattern == Pattern.Charge ? config.ChargeWindup : config.AoEWindup;
+            chargeTargetLocked = false;
             telegraph.Show(pattern, config.ChargeDistance, CurrentAoERadius);
         }
 
@@ -208,8 +226,15 @@ namespace AshenTrial
                 chargeRemaining -= step;
                 return chargeDirection * step;
             }
+            if (phase == AttackPhase.Windup && currentPattern == Pattern.Charge && !chargeTargetLocked &&
+                remainingTime <= config.ChargeLockLeadTime)
+            {
+                LockChargePath();
+                chargeTargetLocked = true;
+            }
             if (phase == AttackPhase.Windup && currentPattern != Pattern.CircleAoE &&
-                (currentPattern != Pattern.MeleeCombo || remainingTime > Mathf.Min(meleeDirectionLockLead, config.AttackWindup)))
+                (currentPattern != Pattern.MeleeCombo || remainingTime > Mathf.Min(meleeDirectionLockLead, config.AttackWindup)) &&
+                (currentPattern != Pattern.Charge || !chargeTargetLocked))
                 RotateTowards(toTarget);
             if (phase == AttackPhase.Windup)
                 telegraph.Show(currentPattern, config.ChargeDistance, CurrentAoERadius);
@@ -239,10 +264,11 @@ namespace AshenTrial
             }
             else if (currentPattern == Pattern.Charge)
             {
-                chargeDirection = transform.forward;
-                chargeDirection.y = 0f;
-                chargeDirection.Normalize();
-                chargeRemaining = config.ChargeDistance;
+                if (!chargeTargetLocked)
+                {
+                    LockChargePath();
+                    chargeTargetLocked = true;
+                }
                 hitbox.BeginSwing(config.ChargeDamage, transform);
                 gameAudio?.PlayBossCharge();
                 hitbox.SetActive(true);
@@ -284,6 +310,27 @@ namespace AshenTrial
                 fightPhase = FightPhase.Two;
         }
 
+        private void LockChargePath()
+        {
+            Vector3 toPlayer = target.position - transform.position;
+            toPlayer.y = 0f;
+            float distance = toPlayer.magnitude;
+            if (distance > 0.0001f)
+            {
+                chargeDirection = toPlayer / distance;
+            }
+            else
+            {
+                chargeDirection = transform.forward;
+                chargeDirection.y = 0f;
+                if (chargeDirection.sqrMagnitude < 0.0001f) chargeDirection = Vector3.forward;
+                else chargeDirection.Normalize();
+            }
+
+            chargeRemaining = config.ChargeDistance;
+            transform.rotation = Quaternion.LookRotation(chargeDirection, Vector3.up);
+        }
+
         private void RotateTowards(Vector3 direction)
         {
             if (direction.sqrMagnitude < 0.0001f) return;
@@ -301,6 +348,7 @@ namespace AshenTrial
             swingIndex = 0;
             chargeRemaining = 0f;
             chargeDirection = Vector3.zero;
+            chargeTargetLocked = false;
         }
 
         private void OnDeath()

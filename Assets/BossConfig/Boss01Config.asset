@@ -25,6 +25,7 @@ MonoBehaviour:
   chargeSpeed: 12
   chargeDistance: 6
   chargeWindup: 0.8
+  chargeLockLeadTime: 0.5
   chargeRecovery: 1.2
   chargeDamage: 25
   chargeCooldown: 5

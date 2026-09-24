@@ -21,6 +21,7 @@ namespace AshenTrial
         [SerializeField, Min(0.01f)] private float chargeSpeed = 12f;
         [SerializeField, Min(0.01f)] private float chargeDistance = 6f;
         [SerializeField, Min(0f)] private float chargeWindup = 0.8f;
+        [SerializeField, Min(0f)] private float chargeLockLeadTime = 0.5f;
         [SerializeField, Min(0.01f)] private float chargeRecovery = 1.2f;
         [SerializeField, Min(0f)] private float chargeDamage = 25f;
         [SerializeField, Min(0f)] private float chargeCooldown = 5f;
@@ -50,6 +51,7 @@ namespace AshenTrial
         public float ChargeSpeed => Mathf.Max(0.01f, chargeSpeed);
         public float ChargeDistance => Mathf.Max(0.01f, chargeDistance);
         public float ChargeWindup => Mathf.Max(0f, chargeWindup);
+        public float ChargeLockLeadTime => Mathf.Clamp(chargeLockLeadTime, 0f, ChargeWindup);
         public float ChargeRecovery => Mathf.Max(0.01f, chargeRecovery);
         public float ChargeDamage => Mathf.Max(0f, chargeDamage);
         public float ChargeCooldown => Mathf.Max(0f, chargeCooldown);
