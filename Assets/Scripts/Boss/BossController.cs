@@ -20,6 +20,7 @@ namespace AshenTrial
         [SerializeField] private AttackHitbox hitbox;
         [SerializeField] private BossTelegraph telegraph;
         [SerializeField] private GameAudio gameAudio;
+        [SerializeField] private BossPhaseTransitionVfx phaseTransition;
         [SerializeField, Min(0f)] private float meleeDirectionLockLead = 0.15f;
         [SerializeField] private FightPhase fightPhase = FightPhase.One;
         [SerializeField] private BossState state;
@@ -307,7 +308,10 @@ namespace AshenTrial
         {
             if (health.IsDead || fightPhase == FightPhase.Two) return;
             if (health.CurrentHp / health.MaxHp <= config.PhaseTwoHealthRatio)
+            {
                 fightPhase = FightPhase.Two;
+                if (phaseTransition != null) phaseTransition.Play();
+            }
         }
 
         private void LockChargePath()

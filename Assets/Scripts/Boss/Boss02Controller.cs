@@ -17,6 +17,7 @@ namespace AshenTrial
         [SerializeField] private Transform projectileSpawn;
         [SerializeField] private Boss02Telegraph telegraph;
         [SerializeField] private GameAudio gameAudio;
+        [SerializeField] private BossPhaseTransitionVfx phaseTransition;
         [SerializeField] private BossState state;
         [SerializeField] private Pattern currentPattern;
         [SerializeField] private Pattern previousPattern;
@@ -79,7 +80,9 @@ namespace AshenTrial
 
         private void UpdatePhase()
         {
-            if (!phaseTwo && health.CurrentHp <= health.MaxHp * config.phaseTwoHealthRatio) phaseTwo = true;
+            if (phaseTwo || health.CurrentHp > health.MaxHp * config.phaseTwoHealthRatio) return;
+            phaseTwo = true;
+            if (!health.IsDead && phaseTransition != null) phaseTransition.Play();
         }
 
         private void Update()
