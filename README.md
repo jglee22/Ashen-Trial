@@ -10,9 +10,6 @@ Unity 클라이언트 개발자로서 3D 액션 전투 콘텐츠를 구조적으
 
 <img width="640" height="360" alt="AshenTrial_README_Showcase" src="https://github.com/user-attachments/assets/58c8cf5e-2dd4-473a-9f0b-9518e745e9b2" />
 
-
-<!-- Gameplay GIF: 촬영 후 여기에 추가 -->
-
 ---
 
 ## 🎮 Project Overview
